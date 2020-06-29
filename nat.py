@@ -17,7 +17,7 @@ from mininet.util import quietRun
 from mininet.link import Intf
 from mininet.node import RemoteController, OVSKernelSwitch
 #################################
-def startNAT( root, inetIntf='eth0', subnet='10.0/8' ):
+def startNAT( root, inetIntf='enp0s3', subnet='10.0/8', gw='192.168.56.3'):
     """Start NAT/forwarding between Mininet and external network
     root: node to access iptables from
     inetIntf: interface for internet access
@@ -46,7 +46,7 @@ def startNAT( root, inetIntf='eth0', subnet='10.0/8' ):
 
     # Instruct the kernel to perform forwarding
     root.cmd( 'sysctl net.ipv4.ip_forward=1' )
-    root.cmd('route add default gw 192.168.56.3')
+    root.cmd('route add default gw ', gw)
 
 def stopNAT( root ):
     """Stop NAT/forwarding between Mininet and external network"""
@@ -73,7 +73,7 @@ def fixNetworkManager( root, intf ):
     # hopefully this won't disconnect you
     root.cmd( 'service network-manager restart' )
 
-def connectToInternet( network, switch='s1', rootip='10.254', subnet='10.0/8'):
+def connectToInternet( network, switch='s1', rootip='10.254', subnet='10.0/8', inetIntf='enp0s3', gw='192.168.56.3'):
     """Connect the network to the internet
        switch: switch to connect to root namespace
        rootip: address for interface in root namespace
@@ -96,7 +96,7 @@ def connectToInternet( network, switch='s1', rootip='10.254', subnet='10.0/8'):
     network.start()
 
     # Start NAT and establish forwarding
-    startNAT( root, 'enp0s3' )
+    startNAT( root, inetIntf=inetIntf, gw=gw )
 
     # Establish routes from end hosts
     for host in network.hosts:
@@ -111,10 +111,10 @@ def connectToInternet( network, switch='s1', rootip='10.254', subnet='10.0/8'):
 if __name__ == '__main__':
     lg.setLogLevel( 'info')
     net = TreeNet( depth=1, fanout=2, controller=RemoteController, switch=OVSKernelSwitch)
-    c1 = RemoteController("c1",ip='127.0.0.1',port=6633)
+    c1 = net.addController(name='c1', controller=RemoteController, ip='127.0.0.1', protocol='tcp', port=5000)
     c1.start()
     # Configure and start NATted connectivity
-    rootnode = connectToInternet( net )
+    rootnode = connectToInternet( net, inetIntf='wlo1', gw='192.168.1.117' )
     print "*** Hosts are running and should have internet connectivity"
     print "*** Type 'exit' or control-D to shut down network"
     CLI( net )
