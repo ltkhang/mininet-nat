@@ -17,7 +17,7 @@ from mininet.util import quietRun
 from mininet.link import Intf
 from mininet.node import RemoteController, OVSKernelSwitch
 #################################
-def startNAT( root, inetIntf='enp0s3', subnet='10.0/8', gw='192.168.56.3'):
+def startNAT( root, inetIntf='enp0s3', subnet='10.0/8', gw='192.168.56.4'):
     """Start NAT/forwarding between Mininet and external network
     root: node to access iptables from
     inetIntf: interface for internet access
@@ -73,7 +73,7 @@ def fixNetworkManager( root, intf ):
     # hopefully this won't disconnect you
     root.cmd( 'service network-manager restart' )
 
-def connectToInternet( network, switch='s1', rootip='10.254', subnet='10.0/8', inetIntf='enp0s3', gw='192.168.56.3'):
+def connectToInternet( network, switch='s1', rootip='10.254', subnet='10.0/8', inetIntf='enp0s3', gw='192.168.56.4'):
     """Connect the network to the internet
        switch: switch to connect to root namespace
        rootip: address for interface in root namespace
@@ -114,7 +114,7 @@ if __name__ == '__main__':
     c1 = net.addController(name='c1', controller=RemoteController, ip='127.0.0.1', protocol='tcp', port=5000)
     c1.start()
     # Configure and start NATted connectivity
-    rootnode = connectToInternet( net, inetIntf='wlo1', gw='192.168.1.117' )
+    rootnode = connectToInternet( net)
     print "*** Hosts are running and should have internet connectivity"
     print "*** Type 'exit' or control-D to shut down network"
     CLI( net )

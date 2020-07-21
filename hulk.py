@@ -141,7 +141,7 @@ else:
 		m = re.search('(https?\://)?([^/]*)/?.*', url)
 		host = m.group(2)
 		t_list = []
-		for i in range(500):
+		for i in range(10):
 			t = HTTPThread()
 			t.start()
 		try:
