@@ -16,6 +16,7 @@ from mininet.topolib import TreeNet
 from mininet.util import quietRun
 from mininet.link import Intf
 from mininet.node import RemoteController, OVSKernelSwitch
+import sys
 #################################
 def startNAT( root, inetIntf='enp0s3', subnet='10.0/8', gw='192.168.56.4'):
     """Start NAT/forwarding between Mininet and external network
@@ -109,12 +110,18 @@ def connectToInternet( network, switch='s1', rootip='10.254', subnet='10.0/8', i
     return root
 
 if __name__ == '__main__':
+    if len(sys.argv) < 3:
+        print "Help: python " + str(sys.argv[0]) + " <network interface> + <ip gateway (host computer)>"
+        exit(0)
+    inetIntf = sys.argv[1]
+    gw = sys.argv[2]
+
     lg.setLogLevel( 'info')
     net = TreeNet( depth=1, fanout=2, controller=RemoteController, switch=OVSKernelSwitch)
     c1 = net.addController(name='c1', controller=RemoteController, ip='127.0.0.1', protocol='tcp', port=5000)
     c1.start()
     # Configure and start NATted connectivity
-    rootnode = connectToInternet( net)
+    rootnode = connectToInternet( net, inetIntf=inetIntf, gw=gw)
     print "*** Hosts are running and should have internet connectivity"
     print "*** Type 'exit' or control-D to shut down network"
     CLI( net )
